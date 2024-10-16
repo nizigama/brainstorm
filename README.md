@@ -4,7 +4,11 @@
 The following are procedures to follow when setting up the Brainstorm app for the first time.
 
 ```shell
+# install packages
 npm install
+
+# set environment variables
+cp .env.example .env
 ```
 
 ### Run the project
