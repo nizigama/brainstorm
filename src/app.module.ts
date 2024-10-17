@@ -5,6 +5,8 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Message } from './entities/message';
 import { Idea } from './entities/idea';
+import { AuthModule } from './auth/auth.module';
+import { User } from './entities/user';
 
 @Module({
   imports: [
@@ -19,12 +21,14 @@ import { Idea } from './entities/idea';
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DATABASE,
     entities: [
+      User,
       Message,
       Idea
     ],
     autoLoadEntities: true,
     synchronize: process.env.APP_ENV !== "production",
   }),
+  AuthModule,
 ],
   controllers: [AppController],
   providers: [AppService],
