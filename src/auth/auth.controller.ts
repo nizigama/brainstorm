@@ -1,21 +1,35 @@
-import { Body, Controller, Get, Post, Render } from '@nestjs/common';
+import { Body, Controller, Get, Post, Render, Session } from '@nestjs/common';
 import { LoginDto } from 'src/dto/login-dto';
+import { AuthService } from './auth.service';
+import { RegisterDto } from 'src/dto/register-dto';
 
 @Controller('auth')
 export class AuthController {
 
+    constructor(protected readonly service: AuthService) { }
+
     @Get()
     @Render('auth')
-    authViews(){
-        
+    authViews() {
+
     }
 
     @Post('login')
-    async login(@Body() req: LoginDto){
-    //     const delay = (t: number) => new Promise(resolve => setTimeout(resolve, t));
+    async login(@Body() req: LoginDto, @Session() session: Record<string, any>) {
 
-    //    await delay(3000)
+        await this.service.login(req)
 
-        return {message: "Login successful"}
+        session.isAuthenticated = "yes"
+
+        return { message: "Login successful" }
+    }
+
+    @Post('register')
+    async register(@Body() req: RegisterDto, @Session() session: Record<string, any>) {
+        await this.service.register(req)
+
+        session.isAuthenticated = "yes"
+
+        return { message: "Registration successful" }
     }
 }
