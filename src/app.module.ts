@@ -10,6 +10,7 @@ import { User } from './entities/user';
 import { AuthenticationMiddleware } from './middlewares/authentication.middleware';
 import { GuestMiddleware } from './middlewares/guest.middleware';
 import { AuthController } from './auth/auth.controller';
+import { BullModule } from '@nestjs/bullmq';
 
 @Module({
   imports: [
@@ -30,6 +31,12 @@ import { AuthController } from './auth/auth.controller';
       ],
       autoLoadEntities: true,
       synchronize: process.env.APP_ENV !== "production",
+    }),
+    BullModule.forRoot({
+      connection: {
+        host: process.env.DB_HOST,
+        port: parseInt(process.env.REDIS_PORT, 10),
+      },
     }),
     AuthModule,
   ],
