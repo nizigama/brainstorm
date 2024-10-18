@@ -4,11 +4,12 @@ import { User } from 'src/entities/user';
 import { EntityManager } from 'typeorm';
 import * as bcrypt from "bcrypt";
 import { RegisterDto } from 'src/dto/register-dto';
+import { BrainService } from 'src/brain/brain.service';
 
 @Injectable()
 export class AuthService {
 
-    constructor(protected readonly db: EntityManager) { }
+    constructor(protected readonly db: EntityManager, protected readonly brainsService: BrainService) { }
 
     async login(payload: LoginDto): Promise<void> {
         const user = await this.db.findOne(User, {
@@ -50,5 +51,7 @@ export class AuthService {
         })
 
         await this.db.save(newUser)
+
+        await this.brainsService.getThread(newUser.id)
     }
 }

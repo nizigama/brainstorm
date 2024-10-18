@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule, OnApplicationBootstrap } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
@@ -11,6 +11,9 @@ import { AuthenticationMiddleware } from './middlewares/authentication.middlewar
 import { GuestMiddleware } from './middlewares/guest.middleware';
 import { AuthController } from './auth/auth.controller';
 import { BullModule } from '@nestjs/bullmq';
+import { BrainService } from './brain/brain.service';
+import { Assistant } from './entities/assistant';
+import { Thread } from './entities/thread';
 
 @Module({
   imports: [
@@ -26,8 +29,10 @@ import { BullModule } from '@nestjs/bullmq';
       database: process.env.DB_DATABASE,
       entities: [
         User,
+        Assistant,
+        Thread,
         Message,
-        Idea
+        Idea,
       ],
       autoLoadEntities: true,
       synchronize: process.env.APP_ENV !== "production",
