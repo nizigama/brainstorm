@@ -11,7 +11,6 @@ import { AuthenticationMiddleware } from './middlewares/authentication.middlewar
 import { GuestMiddleware } from './middlewares/guest.middleware';
 import { AuthController } from './auth/auth.controller';
 import { BullModule } from '@nestjs/bullmq';
-import { BrainService } from './brain/brain.service';
 import { Assistant } from './entities/assistant';
 import { Thread } from './entities/thread';
 
@@ -39,7 +38,7 @@ import { Thread } from './entities/thread';
     }),
     BullModule.forRoot({
       connection: {
-        host: process.env.DB_HOST,
+        host: process.env.REDIS_HOST,
         port: parseInt(process.env.REDIS_PORT, 10),
       },
     }),

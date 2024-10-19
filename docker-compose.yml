@@ -3,13 +3,15 @@ services:
     build: .
     restart: always
     ports:
-      - "${APP_PORT}:3000"
+      - "${APP_PORT}:${APP_PORT}"
     platform: linux/amd64
     volumes:
       - '.:/home/app'
     command: bash -c "npm install && npm run start:dev"
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     networks:
       - app-net
@@ -30,14 +32,31 @@ services:
       - app-net
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-p${DB_PASSWORD}"]
-      retries: 3
+      retries: 10
       interval: 5s
       timeout: 5s
-      start_period: 15s
+      start_period: 5s
+  redis:
+        image: 'redis:alpine'
+        ports:
+            - '${FORWARD_REDIS_PORT:-6379}:6379'
+        volumes:
+            - 'sail-redis:/data'
+        networks:
+            - app-net
+        healthcheck:
+            test:
+                - CMD
+                - redis-cli
+                - ping
+            retries: 3
+            timeout: 5s
 
 networks:
   app-net:
     driver: bridge
 volumes:
     app-mysql:
+        driver: local
+    sail-redis:
         driver: local

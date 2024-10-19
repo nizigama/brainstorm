@@ -12,6 +12,4 @@ RUN apt-get update \
     && apt-get -y clean \
     && npm install -g npm
 
-EXPOSE 8000
-
 CMD ["npm", "run", "start:dev"]
