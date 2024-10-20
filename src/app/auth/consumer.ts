@@ -1,6 +1,6 @@
 import { Processor, WorkerHost } from "@nestjs/bullmq";
 import { Job } from "bullmq";
-import { BrainService } from "src/brain/brain.service";
+import { BrainService } from "src/app/brain/brain.service";
 
 @Processor('default-queue')
 export class Consumer extends WorkerHost {

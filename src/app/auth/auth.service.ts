@@ -4,7 +4,7 @@ import { User } from 'src/entities/user';
 import { EntityManager } from 'typeorm';
 import * as bcrypt from "bcrypt";
 import { RegisterDto } from 'src/dto/register-dto';
-import { BrainService } from 'src/brain/brain.service';
+import { BrainService } from 'src/app/brain/brain.service';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 

@@ -4,7 +4,7 @@ import { ChatService } from './chat.service';
 import { ConsumerService } from './consumer.service';
 import { AuthenticationMiddleware } from 'src/middlewares/authentication.middleware';
 import { BullModule } from '@nestjs/bullmq';
-import { BrainService } from 'src/brain/brain.service';
+import { BrainService } from 'src/app/brain/brain.service';
 
 @Module({
   controllers: [ChatController],

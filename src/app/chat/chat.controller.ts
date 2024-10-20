@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpException, HttpStatus, Post, Session } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Session } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { ChatDto } from 'src/dto/chat-dto';
 

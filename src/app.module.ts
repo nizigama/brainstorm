@@ -1,19 +1,19 @@
-import { MiddlewareConsumer, Module, NestModule, OnApplicationBootstrap } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Message } from './entities/message';
 import { Idea } from './entities/idea';
-import { AuthModule } from './auth/auth.module';
+import { AuthModule } from './app/auth/auth.module';
 import { User } from './entities/user';
 import { AuthenticationMiddleware } from './middlewares/authentication.middleware';
 import { GuestMiddleware } from './middlewares/guest.middleware';
-import { AuthController } from './auth/auth.controller';
+import { AuthController } from './app/auth/auth.controller';
 import { BullModule } from '@nestjs/bullmq';
 import { Assistant } from './entities/assistant';
 import { Thread } from './entities/thread';
-import { ChatModule } from './chat/chat.module';
+import { ChatModule } from './app/chat/chat.module';
 
 @Module({
   imports: [
