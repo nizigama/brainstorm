@@ -1,6 +1,7 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import OpenAI from 'openai';
 import { Assistant } from 'openai/resources/beta/assistants';
+import { TextContentBlock } from 'openai/resources/beta/threads/messages';
 import { Assistant as AssistantEntity } from 'src/entities/assistant';
 import { Thread } from 'src/entities/thread';
 import { EntityManager } from 'typeorm';
@@ -14,7 +15,7 @@ export class BrainService implements OnApplicationBootstrap {
     constructor(protected readonly db: EntityManager) {
         this.openai = new OpenAI({
             apiKey: process.env.OPENAI_API_KEY,
-        });        
+        });
     }
 
     async onApplicationBootstrap(): Promise<void> {
@@ -24,7 +25,7 @@ export class BrainService implements OnApplicationBootstrap {
     protected async makeAssistant(): Promise<void> {
 
         const assistants = await this.db.find(AssistantEntity)
-        
+
         if (assistants.length > 0) {
 
             const firstAssistant = assistants[0]
@@ -32,16 +33,16 @@ export class BrainService implements OnApplicationBootstrap {
             this.assistant = await this.openai.beta.assistants.retrieve(firstAssistant.identifier)
             return;
         }
-        
+
         console.log("Creating new assistant...");
-        
+
         const assistant = await this.openai.beta.assistants.create({
             name: "Brainstorming buddy",
             tools: [],
             model: process.env.OPENAI_MODEL
         });
 
-        const record = this.db.create(AssistantEntity,{
+        const record = this.db.create(AssistantEntity, {
             identifier: assistant.id,
             name: assistant.name,
             model: assistant.model,
@@ -53,11 +54,11 @@ export class BrainService implements OnApplicationBootstrap {
         this.assistant = assistant
     }
 
-    async getThread(userId: number): Promise<OpenAI.Beta.Threads.Thread> {
+    async getThread(userId: number): Promise<Thread> {
 
-        const ths = await this.db.find(Thread,{
-            select:{
-                identifier:true
+        const ths = await this.db.find(Thread, {
+            select: {
+                identifier: true
             },
             where: {
                 user: {
@@ -66,55 +67,52 @@ export class BrainService implements OnApplicationBootstrap {
             }
         })
 
-        if(ths.length > 0){
-            const th = ths[0]
-            return await this.openai.beta.threads.retrieve(th.identifier) 
+        if (ths.length > 0) {
+            return ths[0]
         }
 
         const th = await this.openai.beta.threads.create();
 
-        const record = this.db.create(Thread,{
+        const record = this.db.create(Thread, {
             identifier: th.id,
             user: {
                 id: userId
             }
         })
 
-        await this.db.save(record)
-
-        return th
+        return await this.db.save(record)
     }
 
-    // async run(th: Thread) {
-    //     const msg = await this.openai.beta.threads.messages.create(
-    //         th.id,
-    //         {
-    //             role: "user",
-    //             content: "What interesting and profitable tech product would be amazing to build for the american and european markets?"
-    //         }
-    //     );
+    async run(th: Thread, message: string): Promise<string> {
+        await this.openai.beta.threads.messages.create(
+            th.identifier,
+            {
+                role: "user",
+                content: message
+            }
+        );
 
-    //     console.log(msg);
+        const run = await this.openai.beta.threads.runs.createAndPoll(
+            th.identifier,
+            {
+                assistant_id: this.assistant.id,
+                instructions: "You are a helpful personal assistant that helps in brainstorming ideas then save them if necessary"
+            }
+        );
 
-    //     const run = await this.openai.beta.threads.runs.createAndPoll(
-    //         th.id,
-    //         {
-    //             assistant_id: this.assistant.id,
-    //             instructions: "You are a helpful personal assistant that helps in brainstorming ideas"
-    //         }
-    //     );
+        if (run.status === 'completed') {
+            const messages = await this.openai.beta.threads.messages.list(
+                run.thread_id
+            );
 
-    //     if (run.status === 'completed') {
-    //         const messages = await this.openai.beta.threads.messages.list(
-    //             run.thread_id
-    //         );
-    //         for (const message of messages.data.reverse()) {
-    //             const content = message.content[0] as TextContentBlock
-    //             console.log(`${message.role} > ${content.text.value}`);
-    //         }
-    //     } else {
-    //         console.log(run.status);
-    //     }
-    // }
+            const contents = messages.data[0].content
+
+            const content = contents[0] as TextContentBlock
+
+            return content.text.value
+        } else {
+            console.log(run.status, run);
+        }
+    }
 
 }

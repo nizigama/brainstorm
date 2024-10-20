@@ -1,15 +1,20 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { EntityModel } from "./entity-model";
+import { User } from "./user";
 
 @Entity()
 export class Message extends EntityModel {
 
-    @PrimaryGeneratedColumn({type:"bigint"})
+    @PrimaryGeneratedColumn({ type: "bigint" })
     id: number
 
     @Column()
     role: string
 
-    @Column({type: "longtext",nullable:true})
+    @Column({ type: "longtext", nullable: true })
     message?: string
+
+    @JoinColumn({ name: "user_id" })
+    @ManyToOne(() => User, { nullable: false, eager: false, onDelete: "RESTRICT", onUpdate: "CASCADE" })
+    user: User
 }

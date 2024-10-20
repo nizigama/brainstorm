@@ -17,18 +17,20 @@ export class AuthController {
     @Post('login')
     async login(@Body() req: LoginDto, @Session() session: Record<string, any>) {
 
-        await this.service.login(req)
+        const userId = await this.service.login(req)
 
         session.isAuthenticated = "yes"
+        session.userId = userId
 
         return { message: "Login successful" }
     }
 
     @Post('register')
     async register(@Body() req: RegisterDto, @Session() session: Record<string, any>) {
-        await this.service.register(req)
+        const userId = await this.service.register(req)
 
         session.isAuthenticated = "yes"
+        session.userId = userId
 
         return { message: "Registration successful" }
     }

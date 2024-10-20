@@ -13,8 +13,7 @@ import { AuthController } from './auth/auth.controller';
 import { BullModule } from '@nestjs/bullmq';
 import { Assistant } from './entities/assistant';
 import { Thread } from './entities/thread';
-import { ChatController } from './chat/chat.controller';
-import { ChatService } from './chat/chat.service';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -45,9 +44,10 @@ import { ChatService } from './chat/chat.service';
       },
     }),
     AuthModule,
+    ChatModule,
   ],
-  controllers: [AppController, ChatController],
-  providers: [AppService, ChatService],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

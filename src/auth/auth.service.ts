@@ -17,7 +17,7 @@ export class AuthService {
         @InjectQueue('default-queue') protected readonly queue: Queue
     ) { }
 
-    async login(payload: LoginDto): Promise<void> {
+    async login(payload: LoginDto): Promise<number> {
         const user = await this.db.findOne(User, {
             where: {
                 username: payload.username
@@ -33,9 +33,11 @@ export class AuthService {
         if (!passwordIsValid) {
             throw new UnauthorizedException()
         }
+
+        return user.id
     }
 
-    async register(payload: RegisterDto): Promise<void> {
+    async register(payload: RegisterDto): Promise<number> {
 
         if (payload.password !== payload.password_confirm) {
             throw new HttpException("Password's don't match", HttpStatus.BAD_REQUEST)
@@ -61,5 +63,7 @@ export class AuthService {
         await this.queue.add('CreateUserThread', {
             userId: newUser.id
         })
+
+        return newUser.id
     }
 }
