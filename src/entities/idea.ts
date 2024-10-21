@@ -1,5 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { EntityModel } from "./entity-model";
+import { User } from "./user";
 
 @Entity()
 export class Idea extends EntityModel {
@@ -9,4 +10,8 @@ export class Idea extends EntityModel {
 
     @Column({type:"longtext"})
     content: string
+
+    @JoinColumn({name: "user_id"})
+    @ManyToOne(()=>User,{eager: false, nullable: false, onDelete:"RESTRICT",onUpdate:"CASCADE"})
+    user: User
 }

@@ -14,6 +14,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { Assistant } from '../entities/assistant';
 import { Thread } from '../entities/thread';
 import { ChatModule } from './chat/chat.module';
+import { BrainModule } from './brain/brain.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { ChatModule } from './chat/chat.module';
     }),
     AuthModule,
     ChatModule,
+    BrainModule,
   ],
   controllers: [AppController],
   providers: [AppService],

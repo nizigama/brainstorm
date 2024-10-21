@@ -1,10 +1,12 @@
-import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import OpenAI from 'openai';
-import { Assistant } from 'openai/resources/beta/assistants';
+import { Assistant, AssistantTool } from 'openai/resources/beta/assistants';
 import { TextContentBlock } from 'openai/resources/beta/threads/messages';
+import { Run } from 'openai/resources/beta/threads/runs/runs';
 import { Assistant as AssistantEntity } from 'src/entities/assistant';
 import { Thread } from 'src/entities/thread';
 import { EntityManager } from 'typeorm';
+import { IdeasToolService } from './ideas-tool.service';
 
 @Injectable()
 export class BrainService implements OnApplicationBootstrap {
@@ -12,7 +14,7 @@ export class BrainService implements OnApplicationBootstrap {
     protected openai: OpenAI
     protected assistant: Assistant
 
-    constructor(protected readonly db: EntityManager) {
+    constructor(protected readonly db: EntityManager, protected readonly ideaTool: IdeasToolService) {
         this.openai = new OpenAI({
             apiKey: process.env.OPENAI_API_KEY,
         });
@@ -20,6 +22,30 @@ export class BrainService implements OnApplicationBootstrap {
 
     async onApplicationBootstrap(): Promise<void> {
         await this.makeAssistant()
+    }
+
+    protected assistantTools(): AssistantTool[]{
+        return [
+            {
+                type: "function",
+                function: {
+                    name: "saveIdea",
+                    description: "Save an idea brainstormed with the user to a persistant storage",
+                    strict: true,
+                    parameters: {
+                        type: "object",
+                        properties: {
+                            idea: {
+                                type: "string",
+                                description: "The idea to be saved",
+                            },
+                        },
+                        required: ["idea"],
+                        additionalProperties: false
+                    }
+                }
+            }
+        ]
     }
 
     protected async makeAssistant(): Promise<void> {
@@ -37,8 +63,8 @@ export class BrainService implements OnApplicationBootstrap {
         console.log("Creating new assistant...");
 
         const assistant = await this.openai.beta.assistants.create({
-            name: "Brainstorming buddy",
-            tools: [],
+            name: "Brainstorming assistant",
+            tools: this.assistantTools(),
             model: process.env.OPENAI_MODEL
         });
 
@@ -83,7 +109,19 @@ export class BrainService implements OnApplicationBootstrap {
         return await this.db.save(record)
     }
 
-    async run(th: Thread, message: string): Promise<string> {
+    protected async getAssistantReply(run: Run): Promise<string>{
+        const messages = await this.openai.beta.threads.messages.list(
+            run.thread_id
+        );
+
+        const contents = messages.data[0].content
+
+        const content = contents[0] as TextContentBlock
+
+        return content.text.value
+    }
+
+    async run(userId: number, th: Thread, message: string): Promise<string> {
         await this.openai.beta.threads.messages.create(
             th.identifier,
             {
@@ -101,15 +139,36 @@ export class BrainService implements OnApplicationBootstrap {
         );
 
         if (run.status === 'completed') {
-            const messages = await this.openai.beta.threads.messages.list(
-                run.thread_id
-            );
+            return this.getAssistantReply(run)
+        } else if (run.status === "requires_action") {
+            const toolCalls = run.required_action?.submit_tool_outputs.tool_calls
 
-            const contents = messages.data[0].content
+            const toolsOutputs = []
 
-            const content = contents[0] as TextContentBlock
+            for(const call of toolCalls){
+                if (call.function.name !== "saveIdea") {
+                    continue
+                }
 
-            return content.text.value
+                this.ideaTool.saveIdea(userId, call.function.arguments)
+
+                toolsOutputs.push({
+                    tool_call_id: call.id,
+                    output: "Idea successfully saved!",
+                })
+            }
+
+            if (toolsOutputs.length === 0) {
+                throw new HttpException("Failed to save idea", HttpStatus.INTERNAL_SERVER_ERROR)
+            }
+
+            const toolRun = await this.openai.beta.threads.runs.submitToolOutputsAndPoll(
+                th.identifier,
+                run.id,
+                { tool_outputs: toolsOutputs },
+              );
+
+              return this.getAssistantReply(toolRun)
         } else {
             console.log(run.status, run);
         }

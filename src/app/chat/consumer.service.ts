@@ -16,7 +16,7 @@ export class ConsumerService extends WorkerHost {
         const { userId, question } = job.data
         const thread = await this.brainService.getThread(userId)
 
-        const assistantMessage = await this.brainService.run(thread, question)
+        const assistantMessage = await this.brainService.run(userId, thread, question)
 
         const record = await this.db.create(Message, {
             role: "assistant",
