@@ -1,19 +1,21 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { AppController } from './app/app.controller';
-import { AppService } from './app/app.service';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Message } from './entities/message.entity';
-import { Idea } from './entities/idea.entity';
-import { AuthModule } from './app/auth/auth.module';
-import { User } from './entities/user.entity';
-import { AuthenticationMiddleware } from './middlewares/authentication.middleware';
-import { GuestMiddleware } from './middlewares/guest.middleware';
-import { AuthController } from './app/auth/auth.controller';
+import { Message } from '../entities/message.entity';
+import { Idea } from '../entities/idea.entity';
+import { AuthModule } from './auth/auth.module';
+import { User } from '../entities/user.entity';
+import { AuthenticationMiddleware } from '../middlewares/authentication.middleware';
+import { GuestMiddleware } from '../middlewares/guest.middleware';
+import { AuthController } from './auth/auth.controller';
 import { BullModule } from '@nestjs/bullmq';
-import { Assistant } from './entities/assistant.entity';
-import { Thread } from './entities/thread.entity';
-import { ChatModule } from './app/chat/chat.module';
+import { Assistant } from '../entities/assistant.entity';
+import { Thread } from '../entities/thread.entity';
+import { ChatModule } from './chat/chat.module';
+import { BrainModule } from './brain/brain.module';
+import { IdeaModule } from './idea/idea.module';
 
 @Module({
   imports: [
@@ -45,6 +47,8 @@ import { ChatModule } from './app/chat/chat.module';
     }),
     AuthModule,
     ChatModule,
+    BrainModule,
+    IdeaModule,
   ],
   controllers: [AppController],
   providers: [AppService],

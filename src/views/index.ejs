@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brainstorm</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        clifford: '#da373d',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="h-screen flex flex-col">
+
+    <div class="flex-1 flex flex-row h-full" id="app">
+
+        <!-- Chat Section -->
+        <div class="w-1/2 h-full flex flex-col justify-between p-6 space-y-6 bg-white border shadow-sm rounded-lg">
+
+            <!-- Heading -->
+            <div class="flex flex-col space-y-1.5">
+                <h2 class="font-semibold text-lg tracking-tight">Brainstorm</h2>
+                <p class="text-sm text-[#6b7280] leading-3">Powered by OpenAI LLMs</p>
+            </div>
+
+            <!-- Chat Container (scrollable) -->
+            <div class="flex-1 overflow-y-auto pr-4" id="chatBox">
+                <template v-for="message in messages">
+                    <!-- Chat Message AI -->
+                    <div v-if="message.role === 'assistant'" class="flex gap-3 my-4 text-gray-600 text-sm flex-1">
+                        <span class="relative flex shrink-0 overflow-hidden rounded-full w-8 h-8">
+                            <div class="rounded-full bg-gray-100 border p-1">
+                                <svg stroke="none" fill="black" stroke-width="1.5" viewBox="0 0 24 24"
+                                    aria-hidden="true" height="20" width="20">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z">
+                                    </path>
+                                </svg>
+                            </div>
+                        </span>
+                        <p class="leading-relaxed"><span class="block font-bold text-gray-700">AI</span>
+                            {{ message.message }}
+                        </p>
+                    </div>
+
+                    <!-- User Chat Message -->
+                    <div v-if="message.role === 'human'" class="flex gap-3 my-4 text-gray-600 text-sm flex-1">
+                        <span class="relative flex shrink-0 overflow-hidden rounded-full w-8 h-8">
+                            <div class="rounded-full bg-gray-100 border p-1">
+                                <svg stroke="none" fill="black" stroke-width="0" viewBox="0 0 16 16" height="20"
+                                    width="20">
+                                    <path
+                                        d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4Zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10Z">
+                                    </path>
+                                </svg>
+                            </div>
+                        </span>
+                        <p class="leading-relaxed"><span class="block font-bold text-gray-700">You</span>{{
+                            message.message }}</p>
+                    </div>
+                </template>
+            </div>
+
+            <!-- Input box -->
+            <div class="flex items-center">
+                <form class="flex items-center justify-center w-full space-x-2" @submit.prevent="sendMessage">
+                    <input
+                        class="flex h-10 w-full rounded-md border border-[#e5e7eb] px-3 py-2 text-sm placeholder-[#6b7280] focus:outline-none focus:ring-2 focus:ring-[#9ca3af] disabled:cursor-not-allowed disabled:opacity-50 text-[#030712] focus-visible:ring-offset-2"
+                        placeholder="Type your message" v-model.trim="message">
+                    <button
+                        class="inline-flex items-center justify-center rounded-md text-sm font-medium text-[#f9fafb] disabled:pointer-events-none disabled:opacity-50 bg-black hover:bg-[#111827E6] h-10 px-4 py-2">
+                        Send
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Ideas Section -->
+        <div class="w-1/2 flex flex-col p-10 space-y-5 overflow-y-auto">
+            <div class="flex justify-between items-center">
+                <h2 class="font-semibold text-lg tracking-tight ml-2">Saved ideas</h2>
+                <!-- Reset Button -->
+                <button :disabled="resetting" :class="{'opacity-50':resetting}" @click.prevent="cleanHistory"
+                    class="bg-red-700 text-white text-sm font-small py-1 px-4 rounded-lg shadow hover:bg-red-600 transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-opacity-50">
+                    {{ resetting ? 'Resetting...' : 'Reset Everything' }}
+                </button>
+            </div>
+            <div class="flex flex-col bg-white border shadow-sm rounded-xl" v-for="idea in ideas">
+                <div class="flex justify-between items-center border-b rounded-t-xl py-3 px-4 md:px-5">
+                    <h3 class="text-lg font-bold text-gray-800">
+                        Idea #{{ idea.id }}
+                    </h3>
+                </div>
+                <div class="p-4 md:p-5">
+                    <p class="mt-2 text-gray-500">
+                        {{ idea.content }}
+                    </p>
+                </div>
+            </div>
+            <!-- Additional ideas as needed -->
+        </div>
+
+    </div>
+
+    <script type="module">
+        import { createApp } from 'https://cdnjs.cloudflare.com/ajax/libs/vue/3.5.12/vue.esm-browser.prod.min.js'
+
+        createApp({
+            data() {
+                return {
+                    messages: [],
+                    ideas: [],
+                    message: null,
+                    resetting: false
+                }
+            },
+            methods: {
+                async loadMessages() {
+                    const res = await fetch("/chat")
+
+                    if (res.status !== 200) {
+                        alert("Failed to fetch conversation history")
+                        return
+                    }
+
+                    this.messages = await res.json()
+                    setTimeout(() => {
+                        this.scrollToBottom()
+                    }, 1000);
+                },
+                async loadIdeas() {
+                    const res = await fetch("/ideas")
+
+                    if (res.status !== 200) {
+                        alert("Failed to fetch saved ideas")
+                        return
+                    }
+
+                    this.ideas = await res.json()
+                },
+                scrollToBottom() {
+                    const chatContainer = document.querySelector('#chatBox')
+                    chatContainer.scrollTop = chatContainer.scrollHeight
+                },
+                async cleanHistory() {
+                    this.resetting = true
+
+                    const res = await fetch("/reset", {
+                        method: "DELETE",
+                        headers: {
+                            "Content-Type": "application/json",
+                        }
+                    })
+
+                    if (res.status !== 200) {
+                        alert("Failed to reset history")
+                        return
+                    }
+
+                    this.messages = []
+                    this.ideas = []
+
+                    this.message = null
+                    this.resetting = false
+                },
+                async sendMessage() {
+                    const res = await fetch("/chat", {
+                        method: "POST",
+                        body: JSON.stringify({ message: this.message }),
+                        headers: {
+                            "Content-Type": "application/json",
+                        }
+                    })
+
+                    if (res.status !== 200) {
+                        alert("Failed to send message")
+                        return
+                    }
+
+                    setTimeout(() => {
+                        this.scrollToBottom()
+                    }, 500);
+
+                    this.messages.push({ role: "human", message: this.message })
+
+                    this.message = null
+                }
+            },
+            mounted() {
+                this.loadMessages()
+                this.loadIdeas()
+
+                setInterval(() => {
+                    this.loadMessages()
+                    this.loadIdeas()
+                }, 3000);
+            }
+        }).mount('#app')
+    </script>
+</body>
+
+
+</html>
