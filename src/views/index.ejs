@@ -89,8 +89,9 @@
             <div class="flex justify-between items-center">
                 <h2 class="font-semibold text-lg tracking-tight ml-2">Saved ideas</h2>
                 <!-- Reset Button -->
-                <button :disabled="resetting" :class="{'opacity-50':resetting}" @click.prevent="cleanHistory" class="bg-red-700 text-white text-sm font-small py-1 px-4 rounded-lg shadow hover:bg-red-600 transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-opacity-50">
-                   {{ resetting ? 'Resetting...' : 'Reset Everything' }}
+                <button :disabled="resetting" :class="{'opacity-50':resetting}" @click.prevent="cleanHistory"
+                    class="bg-red-700 text-white text-sm font-small py-1 px-4 rounded-lg shadow hover:bg-red-600 transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-opacity-50">
+                    {{ resetting ? 'Resetting...' : 'Reset Everything' }}
                 </button>
             </div>
             <div class="flex flex-col bg-white border shadow-sm rounded-xl" v-for="idea in ideas">
@@ -150,7 +151,7 @@
                     const chatContainer = document.querySelector('#chatBox')
                     chatContainer.scrollTop = chatContainer.scrollHeight
                 },
-                async cleanHistory(){
+                async cleanHistory() {
                     this.resetting = true
 
                     const res = await fetch("/reset", {
@@ -197,6 +198,11 @@
             mounted() {
                 this.loadMessages()
                 this.loadIdeas()
+
+                setInterval(() => {
+                    this.loadMessages()
+                    this.loadIdeas()
+                }, 3000);
             }
         }).mount('#app')
     </script>
