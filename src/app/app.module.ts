@@ -15,6 +15,7 @@ import { Assistant } from '../entities/assistant';
 import { Thread } from '../entities/thread';
 import { ChatModule } from './chat/chat.module';
 import { BrainModule } from './brain/brain.module';
+import { IdeaModule } from './idea/idea.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { BrainModule } from './brain/brain.module';
     AuthModule,
     ChatModule,
     BrainModule,
+    IdeaModule,
   ],
   controllers: [AppController],
   providers: [AppService],
