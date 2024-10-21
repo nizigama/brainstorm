@@ -23,24 +23,6 @@
 
     <div class="flex-1 flex flex-row h-full" id="app">
 
-        <!-- Ideas Section -->
-        <div class="w-1/2 flex flex-col p-10 space-y-5 overflow-y-auto">
-            <h2 class="font-semibold text-lg tracking-tight ml-2">Saved ideas</h2>
-            <div class="flex flex-col bg-white border shadow-sm rounded-xl" v-for="idea in ideas">
-                <div class="flex justify-between items-center border-b rounded-t-xl py-3 px-4 md:px-5">
-                    <h3 class="text-lg font-bold text-gray-800">
-                        Idea #{{ idea.id }}
-                    </h3>
-                </div>
-                <div class="p-4 md:p-5">
-                    <p class="mt-2 text-gray-500">
-                        {{ idea.content }}
-                    </p>
-                </div>
-            </div>
-            <!-- Additional ideas as needed -->
-        </div>
-
         <!-- Chat Section -->
         <div class="w-1/2 h-full flex flex-col justify-between p-6 space-y-6 bg-white border shadow-sm rounded-lg">
 
@@ -51,7 +33,7 @@
             </div>
 
             <!-- Chat Container (scrollable) -->
-            <div class="flex-1 overflow-y-auto pr-4">
+            <div class="flex-1 overflow-y-auto pr-4" id="chatBox">
                 <template v-for="message in messages">
                     <!-- Chat Message AI -->
                     <div v-if="message.role === 'assistant'" class="flex gap-3 my-4 text-gray-600 text-sm flex-1">
@@ -102,6 +84,30 @@
             </div>
         </div>
 
+        <!-- Ideas Section -->
+        <div class="w-1/2 flex flex-col p-10 space-y-5 overflow-y-auto">
+            <div class="flex justify-between items-center">
+                <h2 class="font-semibold text-lg tracking-tight ml-2">Saved ideas</h2>
+                <!-- Reset Button -->
+                <button :disabled="resetting" :class="{'opacity-50':resetting}" @click.prevent="cleanHistory" class="bg-red-700 text-white text-sm font-small py-1 px-4 rounded-lg shadow hover:bg-red-600 transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-opacity-50">
+                   {{ resetting ? 'Resetting...' : 'Reset Everything' }}
+                </button>
+            </div>
+            <div class="flex flex-col bg-white border shadow-sm rounded-xl" v-for="idea in ideas">
+                <div class="flex justify-between items-center border-b rounded-t-xl py-3 px-4 md:px-5">
+                    <h3 class="text-lg font-bold text-gray-800">
+                        Idea #{{ idea.id }}
+                    </h3>
+                </div>
+                <div class="p-4 md:p-5">
+                    <p class="mt-2 text-gray-500">
+                        {{ idea.content }}
+                    </p>
+                </div>
+            </div>
+            <!-- Additional ideas as needed -->
+        </div>
+
     </div>
 
     <script type="module">
@@ -112,7 +118,8 @@
                 return {
                     messages: [],
                     ideas: [],
-                    message: null
+                    message: null,
+                    resetting: false
                 }
             },
             methods: {
@@ -125,6 +132,9 @@
                     }
 
                     this.messages = await res.json()
+                    setTimeout(() => {
+                        this.scrollToBottom()
+                    }, 1000);
                 },
                 async loadIdeas() {
                     const res = await fetch("/ideas")
@@ -135,8 +145,31 @@
                     }
 
                     this.ideas = await res.json()
+                },
+                scrollToBottom() {
+                    const chatContainer = document.querySelector('#chatBox')
+                    chatContainer.scrollTop = chatContainer.scrollHeight
+                },
+                async cleanHistory(){
+                    this.resetting = true
 
-                    console.log(this.ideas);
+                    const res = await fetch("/reset", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        }
+                    })
+
+                    if (res.status !== 200) {
+                        alert("Failed to reset history")
+                        return
+                    }
+
+                    this.messages = []
+                    this.ideas = []
+
+                    this.message = null
+                    this.resetting = false
                 },
                 async sendMessage() {
                     const res = await fetch("/chat", {
@@ -151,6 +184,10 @@
                         alert("Failed to send message")
                         return
                     }
+
+                    setTimeout(() => {
+                        this.scrollToBottom()
+                    }, 500);
 
                     this.messages.push({ role: "human", message: this.message })
 

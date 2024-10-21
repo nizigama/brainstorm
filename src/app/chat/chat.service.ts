@@ -43,4 +43,10 @@ export class ChatService {
             question: payload.message
         })
     }
+
+    async deleteMessages(userId: number): Promise<void> {
+        await this.db.delete(Message, {user: {
+            id: userId
+        }})
+    }
 }

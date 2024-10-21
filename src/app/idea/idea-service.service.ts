@@ -19,4 +19,10 @@ export class IdeaServiceService {
             }
         })
     }
+
+    async deleteIdeas(userId: number): Promise<void> {
+        await this.db.delete(Idea, {user: {
+            id: userId
+        }})
+    }
 }

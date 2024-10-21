@@ -9,6 +9,7 @@ import { BrainModule } from '../brain/brain.module';
 @Module({
   controllers: [ChatController],
   providers: [ChatService, ConsumerService],
+  exports: [ChatService],
   imports: [
     BullModule.registerQueue({
       name: 'chat-queue',

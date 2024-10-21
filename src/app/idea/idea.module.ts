@@ -5,7 +5,8 @@ import { AuthenticationMiddleware } from 'src/middlewares/authentication.middlew
 
 @Module({
   controllers: [IdeaController],
-  providers: [IdeaServiceService]
+  providers: [IdeaServiceService],
+  exports: [IdeaServiceService]
 })
 export class IdeaModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
