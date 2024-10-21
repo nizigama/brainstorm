@@ -1,8 +1,8 @@
 import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import { Queue } from 'bullmq';
-import { ChatDto } from 'src/dto/chat-dto';
-import { Message } from 'src/entities/message';
+import { ChatDto } from 'src/dto/chat.dto';
+import { Message } from 'src/entities/message.entity';
 import { EntityManager } from 'typeorm';
 
 @Injectable()

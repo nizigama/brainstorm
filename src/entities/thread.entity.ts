@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { EntityModel } from "./entity-model";
-import { User } from "./user";
+import { EntityModel } from "./entity-model.entity";
+import { User } from "./user.entity";
 
 @Entity()
 export class Thread extends EntityModel {

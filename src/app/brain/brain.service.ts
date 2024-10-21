@@ -3,8 +3,8 @@ import OpenAI from 'openai';
 import { Assistant, AssistantTool } from 'openai/resources/beta/assistants';
 import { TextContentBlock } from 'openai/resources/beta/threads/messages';
 import { Run } from 'openai/resources/beta/threads/runs/runs';
-import { Assistant as AssistantEntity } from 'src/entities/assistant';
-import { Thread } from 'src/entities/thread';
+import { Assistant as AssistantEntity } from 'src/entities/assistant.entity';
+import { Thread } from 'src/entities/thread.entity';
 import { EntityManager } from 'typeorm';
 import { IdeasToolService } from './ideas-tool.service';
 

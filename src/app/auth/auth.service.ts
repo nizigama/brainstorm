@@ -1,9 +1,9 @@
 import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
-import { LoginDto } from 'src/dto/login-dto';
-import { User } from 'src/entities/user';
+import { LoginDto } from 'src/dto/login.dto';
+import { User } from 'src/entities/user.entity';
 import { EntityManager } from 'typeorm';
 import * as bcrypt from "bcrypt";
-import { RegisterDto } from 'src/dto/register-dto';
+import { RegisterDto } from 'src/dto/register.dto';
 import { BrainService } from 'src/app/brain/brain.service';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';

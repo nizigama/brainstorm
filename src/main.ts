@@ -6,6 +6,7 @@ import { ValidationPipe } from '@nestjs/common';
 import * as session from 'express-session';
 import { createClient } from 'redis';
 import RedisStore from 'connect-redis';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(
@@ -46,6 +47,15 @@ async function bootstrap() {
       cookie: { secure: process.env.APP_ENV === "production", httpOnly: true }
     }),
   );
+
+  const config = new DocumentBuilder()
+    .setTitle('Brainstorm')
+    .setDescription('The brainstorm app API description')
+    .setVersion('1.0')
+    .build();
+
+  const documentFactory = () => SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, documentFactory);
 
   await app.listen(parseInt(process.env.APP_PORT, 10));
 }

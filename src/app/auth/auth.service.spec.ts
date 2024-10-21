@@ -4,7 +4,7 @@ import { getEntityManagerToken } from '@nestjs/typeorm';
 import { BrainService } from '../brain/brain.service';
 import { getQueueToken } from '@nestjs/bullmq';
 import { UnauthorizedException } from '@nestjs/common';
-import { User } from 'src/entities/user';
+import { User } from 'src/entities/user.entity';
 import * as bcrypt from "bcrypt";
 
 describe('AuthService', () => {
