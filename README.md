@@ -17,6 +17,7 @@ docker-compose up
 ```
 
 - The app will be available on the port exposed by the `APP_PORT` environment variable, by default it's the port `3500`
+- Click [here to access the app](http://localhost:3500)
 
 ### Usage
 Useful when you need to install new packages, use the NestJS cli command, ...
@@ -41,3 +42,5 @@ npm run test
 # run e2e tests inside the opened node environment
 npm run test:e2e
 ```
+
+##### PS: Authentication tests might fail on m series macbooks, due to some incompatibility of the bcrypt package with the arm64 architectures
