@@ -1,5 +1,5 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, Index, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { EntityModel } from "./entity-model";
+import { Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
+import { EntityModel } from "./entity-model.entity";
 
 @Entity()
 export class Assistant extends EntityModel {

@@ -1,7 +1,7 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { BrainService } from 'src/app/brain/brain.service';
-import { Message } from 'src/entities/message';
+import { Message } from 'src/entities/message.entity';
 import { EntityManager } from 'typeorm';
 
 @Processor('chat-queue')

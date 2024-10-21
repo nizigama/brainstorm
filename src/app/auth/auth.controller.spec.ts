@@ -2,15 +2,16 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 
+
 describe('AuthController', () => {
   let controller: AuthController;
-  let mockBrainService: any;
+  let mockAuthService: any;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
-      providers:[
-        {provide: AuthService, useValue: mockBrainService}
+      providers: [
+        { provide: AuthService, useValue: mockAuthService }
       ]
     }).compile();
 
@@ -33,7 +34,7 @@ describe('AuthController', () => {
       mockSession = {};
     });
 
-    
+
     it('should call AuthService.register with correct parameters', async () => {
       const registerDto = { username: 'testuser', password: 'password123', password_confirm: 'password123' };
       await controller.register(registerDto, mockSession);
@@ -44,7 +45,7 @@ describe('AuthController', () => {
       const userId = 1;
       mockAuthService.register.mockResolvedValue(userId);
       const registerDto = { username: 'testuser', password: 'password123', password_confirm: 'password123' };
-      
+
       await controller.register(registerDto, mockSession);
 
       expect(mockSession.isAuthenticated).toBe("yes");
@@ -54,7 +55,7 @@ describe('AuthController', () => {
     it('should return a success message upon successful registration', async () => {
       mockAuthService.register.mockResolvedValue(1);
       const registerDto = { username: 'testuser', password: 'password123', password_confirm: 'password123' };
-      
+
       const result = await controller.register(registerDto, mockSession);
 
       expect(result).toEqual({ message: "Registration successful" });
@@ -64,7 +65,7 @@ describe('AuthController', () => {
       const errorMessage = 'Registration failed';
       mockAuthService.register.mockRejectedValue(new Error(errorMessage));
       const registerDto = { username: 'testuser', password: 'password123', password_confirm: 'password123' };
-      
+
       await expect(controller.register(registerDto, mockSession)).rejects.toThrow(errorMessage);
     });
   });

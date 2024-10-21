@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Idea } from 'src/entities/idea';
+import { Idea } from 'src/entities/idea.entity';
 import { EntityManager } from 'typeorm';
 
 @Injectable()
