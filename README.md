@@ -44,3 +44,10 @@ npm run test:e2e
 ```
 
 ##### PS: Authentication tests might fail on m series macbooks, due to some incompatibility of the bcrypt package with the arm64 architectures
+
+### Notes
+1. The `APP_SECRET` variable is used to sign the sessionID in the cookie to prevent anyone from changing it, changing it would break the signature hence making the cookie invalid. It can be anything from a string to a buffer but preferably it should be a long and random alphanumeric string. More about it can be found [here](https://www.npmjs.com/package/express-session#secret)
+
+2. I used the Redis database as a storage for the sessions driver cause the app is stateful(uses cookies and sessions), and I used MySQL as the main database for other database related features. Using both MySQL and Redis was a personal choice as I could have used one for both use cases, but I decided to use Redis as a session driver because it's faster and usually better at handling concurrent tasks than MySQL.
+
+3. The chatbot being slower to respond, I would say it comes from the fact that I set a 3 seconds interval between each check for the AI response from the backend. This was done intentionally as I didn't choose to implement websockets to send AI responses in realtime, again I made this decision because I thought it was an overkill for now since the app is just for demonstration purpose. But I could implement it in no time if you want me to.
